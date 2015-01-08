@@ -14,6 +14,7 @@ var client = new apigeeEdge.client({
 
 var developerApp = new apigeeEdge.developerApp({ client: client });
 var developer = new apigeeEdge.developer({ client: client });
+var apiProduct = new apigeeEdge.apiProduct({ client: client });
 
 describe('DeveloperApp', function() {
   function randomText() {
@@ -63,12 +64,25 @@ describe('DeveloperApp', function() {
       "apiProducts": [],
       "attributes" : [
         {
+          "name" : randomText(),
+          "value" : randomText()
+        },
+        {
           "name" : "DisplayName",
           "value" : randomText()
         }
       ],
       "callbackUrl" : "http://www.apigee.com"
     };
+
+    var consumerKey = "";
+
+    before(function(done) {
+      apiProduct.getApiProducts({}, function(error, data) {
+        createDeveloperAppData.apiProducts = data;
+        done();
+      });
+    });
 
     var updateDeveloperAppData = {
       "name" : createDeveloperAppData.name,
@@ -94,6 +108,7 @@ describe('DeveloperApp', function() {
       developerApp.createDeveloperApp(createDeveloperData.email, createDeveloperAppData, function(error, data) {
         expect(error).equal(null);
         expect(data.name).equal(createDeveloperAppData.name);
+        consumerKey = data.credentials[0].consumerKey;
         done();
       });
     });
@@ -106,13 +121,45 @@ describe('DeveloperApp', function() {
       });
     });
 
-    it('Update App Details : should return error null & updated callback used for update app call.', function(done){
-      developerApp.updateDeveloperApp(createDeveloperData.email, updateDeveloperAppData, function(error, data) {
+    // App Attribute CRUD Tests
+    it('Get App Attribute : should return error null & attribute value should match original.', function(done) {
+      developerApp.getAppAttribute(createDeveloperData.email, createDeveloperAppData.name, createDeveloperAppData.attributes[0].name, function(error, data) {
         expect(error).equal(null);
-        expect(data.callbackUrl).equal(updateDeveloperAppData.callbackUrl);
+        expect(data.value).equal(createDeveloperAppData.attributes[0].value);
         done();
       });
     });
+
+    it('Get All App Attributes : should return error null.', function(done) {
+      developerApp.getAllAppAttributes(createDeveloperData.email, createDeveloperAppData.name, function(error, data) {
+        expect(error).equal(null);
+        done();
+      });
+    });
+
+    it('Update App Attribute : should return error null & value should match updated value.', function(done) {
+      developerApp.updateAppAttribute(createDeveloperData.email, createDeveloperAppData.name, createDeveloperAppData.attributes[0].name, 'updatedValue', function(error, data) {
+        expect(error).equal(null);
+        expect(data.value).equal('updatedValue');
+        done();
+      });
+    });
+
+    it('Delete App Attribute : should return error null & response should match with deleting developer attribute value.', function(done) {
+      developerApp.deleteAppAttribute(createDeveloperData.email, createDeveloperAppData.name, createDeveloperAppData.attributes[0].name, function(error, data) {
+        expect(error).equal(null);
+        expect(data.value).equal('updatedValue');
+        done();
+      });
+    });
+
+    it('Update All App Attributes : should return error null', function(done) {
+      developerApp.updateAllAppAttributes(createDeveloperData.email, createDeveloperAppData.name, createDeveloperAppData.attributes, function(error, data) {
+        expect(error).equal(null);
+        done();
+      });
+    });
+    
 
     it('Get All Developer Apps: should return error null.', function(done){
       developerApp.getDeveloperApps(createDeveloperData.email, {}, function(error, data) {
@@ -121,10 +168,55 @@ describe('DeveloperApp', function() {
       });
     });
 
+    it('Revoke Developer App: should return error null.', function(done){
+      developerApp.setAppStatus(createDeveloperData.email, createDeveloperAppData.name, 'revoke', function(error, data) {
+        expect(error).equal(null);
+        done();
+      });
+    });
+
+    it('Approve Developer App: should return error null.', function(done){
+      developerApp.setAppStatus(createDeveloperData.email, createDeveloperAppData.name, 'approve', function(error, data) {
+        expect(error).equal(null);
+        done();
+      });
+    });
+
+    it('Get Developer App Resources Count: should return error null.', function(done){
+      developerApp.getDeveloperAppResourcesCount(createDeveloperData.email, createDeveloperAppData.name, function(error, data) {
+        expect(error).equal(null);
+        done();
+      });
+    });
+
+    it('Update Developer App Scopes: should return error null.', function(done){
+      var scopes = [ 'READ' ];
+      developerApp.updateDeveloperAppScopes(createDeveloperData.email, createDeveloperAppData.name, consumerKey, scopes, function(error, data) {
+        expect(error).equal(null);
+        done();
+      });
+    });
+
+    it('Regenerate App Keys: should return error null', function(done){
+      developerApp.regenerateAppKeys(createDeveloperData.email, createDeveloperAppData.name, createDeveloperAppData.apiProducts, function(error, data) {
+        expect(error).equal(null);
+        done();
+      });
+    });
+
+
     it('Get Developer by App Name: should return error null.', function(done){
       developer.getDeveloperByApp(createDeveloperAppData.name, function(error, data) {
         expect(error).equal(null);
         expect(data.developer[0].email).equal(createDeveloperData.email);
+        done();
+      });
+    });
+
+    it('Update App Details : should return error null & updated callback used for update app call.', function(done){
+      developerApp.updateDeveloperApp(createDeveloperData.email, updateDeveloperAppData, function(error, data) {
+        expect(error).equal(null);
+        expect(data.callbackUrl).equal(updateDeveloperAppData.callbackUrl);
         done();
       });
     });
