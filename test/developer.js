@@ -102,10 +102,40 @@ describe('Developer', function() {
     });
 
     // Developer Attribute CRUD Tests
-    it('Get Developer Attribute : should return error null & ..', function(done) {
+    it('Get Developer Attribute : should return error null & attribute value should match original.', function(done) {
       developer.getDeveloperAttribute(createDeveloperData.email, createDeveloperData.attributes[0].name, function(error, data) {
         expect(error).equal(null);
         expect(data.value).equal(createDeveloperData.attributes[0].value);
+        done();
+      });
+    });
+
+    it('Get All Developer Attributes : should return error null.', function(done) {
+      developer.getAllDeveloperAttributes(createDeveloperData.email, function(error, data) {
+        expect(error).equal(null);
+        done();
+      });
+    });
+
+    it('Update Developer Attribute : should return error null & value should match updated value.', function(done) {
+      developer.updateDeveloperAttribute(createDeveloperData.email, createDeveloperData.attributes[0].name, 'updatedValue', function(error, data) {
+        expect(error).equal(null);
+        expect(data.value).equal('updatedValue');
+        done();
+      });
+    });
+
+    it('Delete Developer Attribute : should return error null & response should match with deleting developer attribute value.', function(done) {
+      developer.deleteDeveloperAttribute(createDeveloperData.email, createDeveloperData.attributes[0].name, function(error, data) {
+        expect(error).equal(null);
+        expect(data.value).equal('updatedValue');
+        done();
+      });
+    });
+
+    it('Update All Developer Attributes : should return error null', function(done) {
+      developer.updateAllDeveloperAttributes(createDeveloperData.email, createDeveloperData.attributes, function(error, data) {
+        expect(error).equal(null);
         done();
       });
     });
