@@ -2,7 +2,6 @@ var assert = require('assert');
 var chai = require('chai'),
     expect = chai.expect,
     should = chai.should();
-
 var config = require('./configure.js');
 var apigeeEdge = require('../');
 
