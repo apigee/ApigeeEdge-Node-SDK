@@ -1,6 +1,6 @@
 {
   "name": "apigee-edge-sdk",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Apigee Edge SDK for Edge related API calls",
   "main": "index.js",
   "scripts": {
