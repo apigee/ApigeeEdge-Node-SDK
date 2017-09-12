@@ -26,7 +26,7 @@ describe('Developer', function() {
   });
 
   describe('Developer CRUD Operations', function() {
-
+    this.timeout(10000);
     function randomText() {
       var text = "";
       var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -73,6 +73,8 @@ describe('Developer', function() {
 
     it('Create Developer : should return error null & same email used for create developer call.', function(done) {
       developer.createDeveloper(createDeveloperData, function(error, data) {
+        createDeveloperData.developerId = data.developerId;
+        expect(createDeveloperData.developerId).not.equal(null);
         expect(error).equal(null);
         expect(data.email).equal(createDeveloperData.email);
         done();
@@ -148,10 +150,28 @@ describe('Developer', function() {
       });
     });
 
+    it('Update Developer Details : should return error null & update email', function(done) {
+        updateDeveloperData.developerId = createDeveloperData.developerId;
+        updateDeveloperData.email = randomText()+"@"+randomText()+".com";
+        developer.updateDeveloper(updateDeveloperData, function(error, data) {
+            expect(error).equal(null);
+            expect(data.email).equal(updateDeveloperData.email);
+            done();
+        });
+    });
+
+    it('Update Developer Details : should return error null when calling without developerId field', function(done) {
+        delete updateDeveloperData.developerId;
+        developer.updateDeveloper(updateDeveloperData, function(error, data) {
+            expect(error).equal(null);
+            done();
+        });
+    });
+
     it('Delete Developer : should return error null & response should match with deleting developer email address.', function(done) {
-      developer.deleteDeveloper(createDeveloperData.email, function(error, data) {
+      developer.deleteDeveloper(updateDeveloperData.email, function(error, data) {
         expect(error).equal(null);
-        expect(data.email).equal(createDeveloperData.email);
+        expect(data.email).equal(updateDeveloperData.email);
         done();
       });
     });
